@@ -18,9 +18,9 @@ var camera;
 
 
 var worldCoords = [
-    [-10,10],
-    [-4,5],
-    [-6,6]
+    [-90,90],
+    [-45,54],
+    [-54,54]
 ];
 
 const CAMERA_SPEED = 1;
@@ -28,7 +28,7 @@ const CAMERA_SPEED = 1;
 
 var cameraPos = [0.0, 100.0, 100.0 ,1.0]; 
 var lookAtPoint = [0.0, 0.0, 0.0, 1.0]; 
-var up = [0.0, 1.0, 0.0, 1.0];
+var up = [cameraPos[0], cameraPos[1] + 1.0, cameraPos[2], 1.0];
 var near = 1;
 var far = -100;
 var left = -1;
@@ -229,9 +229,15 @@ function initHTMLEventListeners(){
 
                     break;  
                 case "KeyR":
-                    cameraPos = [2.0, 2.0, 2.0 ,1.0]; 
+                    cameraPos = [0.0, 100.0, 100.0 ,1.0]; 
                     lookAtPoint = [0.0, 0.0, 0.0, 1.0]; 
-                    up = [0.0, 1.0, 0.0, 1.0]; 
+                    up = [cameraPos[0], cameraPos[1] + 1.0, cameraPos[2], 1.0];
+                    near = 1;
+                    far = -100;
+                    left = -1;
+                    right = 1;
+                    bottom = -1;
+                    topCam = 1;
                     break;
                 case "Space":
                     cameraPos = vector_add(cameraPos, [0.0 , 1.0 , 0.0 ,0.0]);
