@@ -1576,12 +1576,12 @@ function getBounds(){
 		let z = current [2];
 		
 		if (x > maxX){
-			console.log(x, "is the new max X")
+			//console.log(x, "is the new max X")
 			maxX = x
 		}
 
 		if (x < minX){
-			console.log(x, "is the new min X")
+			//console.log(x, "is the new min X")
 			minX = x;
 		}
 

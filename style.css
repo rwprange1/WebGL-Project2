@@ -1,0 +1,14 @@
+    .flex-container {
+        display: flex; /* Makes the children flex items */
+        justify-content: space-around; /* Distributes space around items */
+        gap: 20px; /* Adds space between columns */
+    }
+
+    .column {
+        flex: 1; /* Allows columns to grow and shrink equally */
+        padding: 20px;
+        border: 1px solid #ccc;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }

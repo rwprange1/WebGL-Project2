@@ -28,13 +28,6 @@ function Camera(location, lookAtPoint, up){
     this.calculateN();
 
     this.worldToCam();
-    //this.ortho(-1, 1, -1, 1, .1,1 );
-
-
-
-
-     this.perspective(-1, 1, -1, 1, 1,10 );
-
 }
 
 
@@ -100,7 +93,7 @@ Camera.prototype.ortho = function(left, right, bottom, top, near, far){
     mat[2][3] = -1 * ((far + near) / (far- near))
 
     mat = transpose(mat);
-    console.log(mat);
+    
 
     this.projectionMatrix = mat;
 }

@@ -29,7 +29,13 @@ const CAMERA_SPEED = 1;
 var cameraPos = [0.0, 100.0, 100.0 ,1.0]; 
 var lookAtPoint = [0.0, 0.0, 0.0, 1.0]; 
 var up = [0.0, 1.0, 0.0, 1.0];
-   
+var near = 1;
+var far = -100;
+var left = -1;
+var right = 1;
+var bottom = -1;
+var topCam = 1;
+
 
 
 
@@ -55,7 +61,6 @@ window.onload = function init(){
 
     
     let modelData = getBounds();
-    console.log(modelData);
     let uModel = gl.getUniformLocation(program, "uModel");
     gl.uniformMatrix4fv(uModel, false, matToFloat32Array(changeChoordsNew(modelData, worldCoords)));
     
@@ -85,7 +90,7 @@ function buildBuffers(){
     )
 
     let vPosition = gl.getAttribLocation(program, "vPosition");
-    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
 
     
@@ -103,14 +108,14 @@ function buildBuffers(){
 
 
 
-
+/**
+ * This is the render loop, we clear the canvas and display the content and call render again
+ */
 function render() {
+
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    
-    console.log("render")
-    //gl.drawArrays(gl.TRIANGLES, 0,100);
     gl.drawElements(gl.TRIANGLES, teapotIndexSet.length, gl.UNSIGNED_SHORT, 0);
-    //gl.drawElements(gl.TRIANGLES, teapotIndexSet.length, gl.UNSIGNED_SHORT, 0);
+ 
     setTimeout(
 		function (){requestAnimFrame(render);}, 100
     );
@@ -119,16 +124,30 @@ function render() {
 
 function buildCamera(){
     camera = new Camera(cameraPos, lookAtPoint, up);
+
+    console.log(
+        "near", near, "far", far, "left", left, "right", right, "top", topCam, "bot", bottom
+    )
+
+    camera.perspective(left, right, bottom, topCam, near, far);
+    console.log("Persp",  camera.perspectiveMatrix);
+
     let modelMatrix = gl.getUniformLocation(program, "uCamera");
     let perspectiveMatrix = gl.getUniformLocation(program, "uPerspectiveMatrix");
-
-
     gl.uniformMatrix4fv(modelMatrix, false, matToFloat32Array(transpose(camera.modelViewMatrix)));
     gl.uniformMatrix4fv(perspectiveMatrix, false, matToFloat32Array(transpose(camera.perspectiveMatrix)));
 
     let valueHolder = this.document.getElementById("cameraPos");
     valueHolder.innerHTML = ("Camera Position " + cameraPos);
+}
 
+
+function updateCameraUniforms(){
+    camera.perspective(left, right, bottom, topCam, near, far);
+    let modelMatrix = gl.getUniformLocation(program, "uCamera");
+    let perspectiveMatrix = gl.getUniformLocation(program, "uPerspectiveMatrix");
+    gl.uniformMatrix4fv(modelMatrix, false, matToFloat32Array(transpose(camera.modelViewMatrix)));
+    gl.uniformMatrix4fv(perspectiveMatrix, false, matToFloat32Array(transpose(camera.perspectiveMatrix)));
 }
 
 
@@ -139,7 +158,50 @@ function buildCamera(){
 
 function initHTMLEventListeners(){
 
-  
+    let heightSliderOut = document.getElementById("Height-Slider-Value");
+    let widthSliderOut = document.getElementById("Width-Slider-Value");
+    let nearSliderOut = document.getElementById("Near-Slider-Value");
+    let farSliderOut = document.getElementById("Far-Slider-Value");
+    
+
+    let heightSliderIn =  document.getElementById("height-slider");
+    let widthSliderIn = document.getElementById("width-slider");
+   
+    let nearSliderIn = document.getElementById("near");
+    let farSliderIn = document.getElementById("far");
+
+    heightSliderIn.oninput = function (){
+        let value = this.value/2;
+        topCam = value;
+        bottom = -1 * value;
+        heightSliderOut.innerHTML = ("Current " + value);
+        updateCameraUniforms();
+    }
+
+    widthSliderIn.oninput = function (){
+        let value = this.value/2;
+        right = value;
+        left = -1 * value;
+        
+
+        widthSliderOut.innerHTML = ("Current " + value);
+        updateCameraUniforms();
+    }
+
+    nearSliderIn.oninput = function (){
+       
+        near = this.value;
+        nearSliderOut.innerHTML = ("Current " + near);
+        updateCameraUniforms();
+    }
+
+    farSliderIn.oninput = function (){
+       
+        far = this.value;
+        farSliderOut.innerHTML = ("Current " + far);
+        updateCameraUniforms();
+    }
+
 
     this.document.addEventListener("keydown", (event) =>{
             switch (event.code) {
