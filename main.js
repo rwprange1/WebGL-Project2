@@ -19,8 +19,8 @@ var camera;
 
 var worldCoords = [
     [-10,10],
-    [-10,10],
-    [-10,10]
+    [-4,5],
+    [-6,6]
 ];
 
 const CAMERA_SPEED = 1;
@@ -61,6 +61,7 @@ window.onload = function init(){
 
     
     let modelData = getBounds();
+    console.log(modelData)
     let uModel = gl.getUniformLocation(program, "uModel");
     gl.uniformMatrix4fv(uModel, false, matToFloat32Array(changeChoordsNew(modelData, worldCoords)));
     

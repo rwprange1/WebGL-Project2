@@ -22,7 +22,7 @@ void main() {
     gl_PointSize = 3.0;
     fColor = vec4((1.0 + vPosition.xyz)/4.0, 1.0);
     vec4 newPos = vec4(vPosition, 1.0);
-    gl_Position =   ( uPerspectiveMatrix * uCamera) * newPos  ; 
+    gl_Position =   ( uPerspectiveMatrix * uCamera *uModel) * newPos  ; 
     
 }
 </script>
