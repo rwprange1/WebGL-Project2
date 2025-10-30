@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<title>Teapot</title>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+
+precision mediump float;
+
+
+attribute vec3 vPosition;
+uniform mat4 uCamera;
+uniform mat4 uPerspectiveMatrix;
+uniform mat4 uModel;
+
+
+
+
+varying vec4 fColor;
+
+void main() {
+    gl_PointSize = 3.0;
+    fColor = vec4((1.0 + vPosition.xyz)/4.0, 1.0);
+    vec4 newPos = vec4(vPosition, 1.0);
+    gl_Position =   ( uPerspectiveMatrix * uCamera * uModel ) * newPos  ; 
+    
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+
+precision mediump float;
+
+// vertex color coming from vertex shader
+varying vec4 fColor;
+
+void main() {
+    gl_FragColor = fColor;
+}
+
+</script>
+
+
+
+
+<!--Changed file path-->
+<script type="text/javascript" src="common_files/utils.js"></script>
+<script type="text/javascript" src="main.js"></script>
+<script type="text/javascript" src="mat_vec.js"></script>
+<script type="text/javascript" src="Camera.js"></script>
+<script type="text/javascript" src="teapot.js"></script>
+</head>   
+
+<body style="background-color: blueviolet;">
+
+<canvas id="gl-canvas" width="512" height="512" >
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+
+
+
+<div id="cameraPos">
+    
+</div>
+
+</body>
+</html>
