@@ -109,6 +109,12 @@ Camera.prototype.ortho = function(left, right, bottom, top, near, far){
 
 Camera.prototype.perspective = function(left, right, bottom, top, near, far){
     let mat = mat4();
+
+    console.log(near, far)
+
+
+    
+    
     mat[0][0] = 2*near/(right-left);
     mat[0][2] = (right+left)/(right - left);
 
@@ -121,8 +127,9 @@ Camera.prototype.perspective = function(left, right, bottom, top, near, far){
     mat[3][2] = -1;
     mat[3][3] = 0;
 
-    mat = transpose(mat);
-    this.perspectiveMatrix = mat;
+    
+    
+    this.perspectiveMatrix =mat;
 }
 
 

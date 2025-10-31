@@ -20,17 +20,17 @@ var camera;
 var theta = .05;
 
 var worldCoords = [
-    [-.9,.9],
-    [-.54,.54],
-    [-.54,.54]
+    [-80,80],
+    [-35,42],
+    [-50,50]
 ];
 
 const CAMERA_SPEED = 1;
 
 
-var cameraPos = [1.0, 1.0, 1.0 ,1.0]; 
+var cameraPos = [0, 100., 100.0 ,1.0]; 
 var lookAtPoint = [0.0, 0.0, 0.0, 1.0]; 
-var up = [0.0, 1.0, 0.0, 1.0];
+var up = [cameraPos[0], cameraPos[1] + 1.0, cameraPos[2], 1.0];
 var near = 1;
 var far = 100;
 var left = -1;
@@ -59,7 +59,7 @@ window.onload = function init(){
     gl.enable(gl.DEPTH_TEST);
 
     gl.viewport(0,0,canvas.width, canvas.height);
-    gl.clearColor(.6,.6,.6,1.0);
+    gl.clearColor(.2,.3,.2,1.0);
 
     
     let modelData = getBounds();
@@ -260,15 +260,11 @@ function initHTMLEventListeners(){
             switch (event.code) {
                 case "KeyW":
                     cameraPos =  vector_add(cameraPos, vector_scale(camera.lookAtDirection, -1 *cameraSpeed));
-                   
                     break;
                 case "KeyA": {
                     let norm = normalize(cross_product(camera.lookAtDirection, camera.V));
                     norm.push(0.0);
-
                     cameraPos = vector_add(cameraPos, vector_scale (norm, cameraSpeed));
-                    
-        
                     break;
                 }
                 case "KeyD": {
