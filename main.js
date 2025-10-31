@@ -17,7 +17,7 @@ var indexBuffer;
 var axisBuffer;
 
 var camera; 
-
+var theta = .05;
 
 var worldCoords = [
     [-90,90],
@@ -30,7 +30,7 @@ const CAMERA_SPEED = 1;
 
 var cameraPos = [0.0, 100.0, 100.0 ,1.0]; 
 var lookAtPoint = [0.0, 0.0, 0.0, 1.0]; 
-var up = [cameraPos[0], cameraPos[1] + 1.0, cameraPos[2], 1.0];
+var up = [0.0, 1.0, 0.0, 1.0];
 var near = 1;
 var far = 100;
 var left = -1;
@@ -62,16 +62,16 @@ window.onload = function init(){
     gl.clearColor(.6,.6,.6,1.0);
 
     
-    let modelData = getBounds();
+    //let modelData = getBounds();
     let uModel = gl.getUniformLocation(program, "uModel");
-    gl.uniformMatrix4fv(uModel, false, matToFloat32Array(changeChoordsNew(modelData, worldCoords)));
-    
+    //gl.uniformMatrix4fv(uModel, false, matToFloat32Array(changeChoordsNew(modelData, worldCoords)));
+    gl.uniformMatrix4fv(uModel, false, matToFloat32Array(mat4()));
 
 
-    buildBuffers();
+    ///buildBuffers();
     buildCamera();
     buildAxis();
-    initHTMLEventListeners();
+    //initHTMLEventListeners();
     
    
     render();
@@ -79,27 +79,30 @@ window.onload = function init(){
 
 
 function buildAxis(){
-
-    
-    
-   
-
-
-
     let axisLength =100;
 
     let points = [
         0.0, 0.0, 0.0, 
         axisLength, 0.0, 0.0, 
 
+        0.0, 0.0, 0.0, 
+        -axisLength, 0.0, 0.0, 
+
         0.0, 0.0, 0.0,
         0.0, axisLength, 0.0, 
+
 
         0.0, 0.0, 0.0,
         0.0, 0.0, axisLength, 
 
+        0.0, 0.0, 0.0,
+        0.0, 0.0, -axisLength, 
+
         axisLength, 0.0, 0.0 , 
-        axisLength, 0.0, 0.0 
+        axisLength, 0.0, 0.0,
+        
+        -axisLength, 0.0, 0.0 , 
+        -axisLength, 0.0, 0.0  
     ];
 
     axisBuffer = gl.createBuffer();
@@ -140,7 +143,14 @@ function buildBuffers(){
 }
 
 
-
+function rotateCamera(){
+    let radius = 10.0;
+    let camX = Math.sin(theta) * radius;
+    let camZ = Math.cos(theta) * radius; 
+    theta += .3
+    cameraPos = [camX , 1.0, camZ , 1.0];
+    buildCamera();
+}
 
 
 
@@ -151,17 +161,17 @@ function buildBuffers(){
 function render() {
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    
-    gl.bindBuffer(gl.ARRAY_BUFFER,  dataBuffer);
+    rotateCamera()
+   // gl.bindBuffer(gl.ARRAY_BUFFER,  dataBuffer);
     let vPosition = gl.getAttribLocation(program, "vPosition");
-    gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(vPosition);
-    gl.drawElements(gl.TRIANGLES, teapotIndexSet.length, gl.UNSIGNED_SHORT, 0);
+   // gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
+    //gl.enableVertexAttribArray(vPosition);
+   // gl.drawElements(gl.TRIANGLES, teapotIndexSet.length, gl.UNSIGNED_SHORT, 0);
  
     gl.bindBuffer(gl.ARRAY_BUFFER, axisBuffer);
     gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
-    gl.drawArrays(gl.LINES, 0 ,6);
+    gl.drawArrays(gl.LINES, 0 ,12);
 
 
     setTimeout(
@@ -239,16 +249,18 @@ function initHTMLEventListeners(){
         updateCameraUniforms();
     }
 
+    let cameraSpeed = 50;
 
     this.document.addEventListener("keydown", (event) =>{
             switch (event.code) {
                 case "KeyW":
-                    cameraPos[2] =cameraPos[2] + (-camera.N[2]); 
+                    cameraPos =  vector_add(cameraPos, negate(camera.N));
                    
                     break;
                 case "KeyA":
                     
-                    cameraPos[0] = cameraPos[0] - 1;
+                    
+                    cameraPos = vector_scale(normalize(cross_product(camera.N, camera.V), false), cameraSpeed);
                     
                  
                     
@@ -258,12 +270,12 @@ function initHTMLEventListeners(){
                     cameraPos[0] = cameraPos[0] + 1;
                     break;
                 case "KeyS":
-                    cameraPos[2] =cameraPos[2] - (-camera.N[2]); 
+                    cameraPos =  vector_add(cameraPos,camera.N);
                     break;  
                 case "KeyR":
                     cameraPos = [0.0, 100.0, 100.0 ,1.0]; 
                     lookAtPoint = [0.0, 0.0, 0.0, 1.0]; 
-                    up = [cameraPos[0], cameraPos[1] + 1.0, cameraPos[2], 1.0];
+                    up = [0.0, 1.0, 0.0, 1.0];
                     near = 1;
                     far = 100;
                     left = -1;

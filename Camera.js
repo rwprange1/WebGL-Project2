@@ -16,18 +16,24 @@ function Camera(location, lookAtPoint, up){
     this.up = [];
    
     for (let i = 0; i < this.lookAtPoint.length; i++){
-        this.lookAtDirection[i] = this.lookAtPoint[i] - this.cameraPos[i];
+        this.lookAtDirection[i] =  this.cameraPos[i] - this.lookAtPoint[i];
         this.up[i] = up[i] - this.cameraPos[i];
     }
     
+    // this is the camera direction vector it should point at the look at point
     this.lookAtDirection[3] = 0.0;
     this.up[3] = 0.0;
 
+    // this is the camera forward direction (z-axis)
+    this.lookAtDirection = normalize(this.lookAtDirection);
+    this.up = normalize(this.up);
+
+
     this.calculateU();
     this.calculateV();
-    this.calculateN();
 
-    this.worldToCam();
+
+    this.lookAt();
 }
 
 
@@ -35,7 +41,7 @@ function Camera(location, lookAtPoint, up){
  * This method will allow us to translate a a geometric object
  * in model coords to camera coords
  */
-Camera.prototype.worldToCam = function(){
+Camera.prototype.lookAt = function(){
     let MoveCamToOg = translate4x4(-this.cameraPos[0], -this.cameraPos[1], -this.cameraPos[2]);
 
     let rotationMat = mat4();
@@ -49,9 +55,9 @@ Camera.prototype.worldToCam = function(){
     rotationMat[1][1] = this.V[1];
     rotationMat[2][1] = this.V[2];
 
-    rotationMat[0][2] = this.N[0];
-    rotationMat[1][2] = this.N[1];
-    rotationMat[2][2] = this.N[2];
+    rotationMat[0][2] = this.lookAtDirection[0];
+    rotationMat[1][2] = this.lookAtDirection[1];
+    rotationMat[2][2] = this.lookAtDirection[2];
 
 
     
@@ -62,24 +68,22 @@ Camera.prototype.worldToCam = function(){
 }
 
 
-// x
+// x or camera right axis
 Camera.prototype.calculateU = function(){
-    this.U = cross_product(normalize(this.lookAtDirection), normalize(this.up));
+    this.U = normalize(cross_product(this.lookAtDirection, this.up));
     this.U.push(0.0);
-}
-
-// y
-Camera.prototype.calculateV = function(){
-    this.V = cross_product( normalize(this.U), normalize(this.lookAtDirection));
-    this.V.push(0.0);
-}
-
-
-// z
-Camera.prototype.calculateN = function(){
-    this.N = negate(normalize(this.lookAtDirection));
    
 }
+
+// y or camera up axis
+Camera.prototype.calculateV = function(){
+    this.V = normalize(cross_product( this.U, this.lookAtDirection));
+    this.V.push(0.0);
+    
+}
+
+
+
 
 
 
@@ -104,9 +108,6 @@ Camera.prototype.ortho = function(left, right, bottom, top, near, far){
 
 Camera.prototype.perspective = function(left, right, bottom, top, near, far){
     let mat = mat4();
-
-  
-
     mat[0][0] = 2*near/(right-left);
     mat[0][2] = (right+left)/(right - left);
 
@@ -122,5 +123,6 @@ Camera.prototype.perspective = function(left, right, bottom, top, near, far){
     mat = transpose(mat);
     this.perspectiveMatrix = mat;
 }
+
 
 
