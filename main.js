@@ -20,15 +20,15 @@ var camera;
 var theta = .05;
 
 var worldCoords = [
-    [-90,90],
-    [-45,54],
-    [-54,54]
+    [-.9,.9],
+    [-.54,.54],
+    [-.54,.54]
 ];
 
 const CAMERA_SPEED = 1;
 
 
-var cameraPos = [0.0, 100.0, 100.0 ,1.0]; 
+var cameraPos = [1.0, 1.0, 1.0 ,1.0]; 
 var lookAtPoint = [0.0, 0.0, 0.0, 1.0]; 
 var up = [0.0, 1.0, 0.0, 1.0];
 var near = 1;
@@ -62,16 +62,18 @@ window.onload = function init(){
     gl.clearColor(.6,.6,.6,1.0);
 
     
-    //let modelData = getBounds();
+    let modelData = getBounds();
     let uModel = gl.getUniformLocation(program, "uModel");
-    //gl.uniformMatrix4fv(uModel, false, matToFloat32Array(changeChoordsNew(modelData, worldCoords)));
-    gl.uniformMatrix4fv(uModel, false, matToFloat32Array(mat4()));
+    gl.uniformMatrix4fv(uModel, false, matToFloat32Array(changeChoordsNew(modelData, worldCoords)));
+    
+    // test identity mat
+    //gl.uniformMatrix4fv(uModel, false, matToFloat32Array(mat4()));
 
 
-    ///buildBuffers();
+    buildBuffers();
     buildCamera();
     buildAxis();
-    //initHTMLEventListeners();
+    initHTMLEventListeners();
     
    
     render();
@@ -143,11 +145,14 @@ function buildBuffers(){
 }
 
 
+/**
+ * This function sets up a simple rotation of the camera around the cardinal axis; 
+ */
 function rotateCamera(){
-    let radius = 10.0;
+    let radius = 2.0;
     let camX = Math.sin(theta) * radius;
     let camZ = Math.cos(theta) * radius; 
-    theta += .3
+    theta += .1
     cameraPos = [camX , 1.0, camZ , 1.0];
     buildCamera();
 }
@@ -161,12 +166,12 @@ function rotateCamera(){
 function render() {
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    rotateCamera()
-   // gl.bindBuffer(gl.ARRAY_BUFFER,  dataBuffer);
+    //rotateCamera()
+   gl.bindBuffer(gl.ARRAY_BUFFER,  dataBuffer);
     let vPosition = gl.getAttribLocation(program, "vPosition");
-   // gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
-    //gl.enableVertexAttribArray(vPosition);
-   // gl.drawElements(gl.TRIANGLES, teapotIndexSet.length, gl.UNSIGNED_SHORT, 0);
+   gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vPosition);
+    gl.drawElements(gl.TRIANGLES, teapotIndexSet.length, gl.UNSIGNED_SHORT, 0);
  
     gl.bindBuffer(gl.ARRAY_BUFFER, axisBuffer);
     gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
@@ -249,28 +254,33 @@ function initHTMLEventListeners(){
         updateCameraUniforms();
     }
 
-    let cameraSpeed = 50;
+    let cameraSpeed = .05;
 
     this.document.addEventListener("keydown", (event) =>{
             switch (event.code) {
                 case "KeyW":
-                    cameraPos =  vector_add(cameraPos, negate(camera.N));
+                    cameraPos =  vector_add(cameraPos, vector_scale(camera.lookAtDirection, -1 *cameraSpeed));
                    
                     break;
-                case "KeyA":
+                case "KeyA": {
+                    let norm = normalize(cross_product(camera.lookAtDirection, camera.V));
+                    norm.push(0.0);
+
+                    cameraPos = vector_add(cameraPos, vector_scale (norm, cameraSpeed));
                     
-                    
-                    cameraPos = vector_scale(normalize(cross_product(camera.N, camera.V), false), cameraSpeed);
-                    
-                 
-                    
+        
                     break;
-                case "KeyD":
+                }
+                case "KeyD": {
                      
-                    cameraPos[0] = cameraPos[0] + 1;
+                    let norm = normalize(cross_product(camera.lookAtDirection, camera.V));
+                    norm.push(0.0);
+
+                    cameraPos = vector_sub(cameraPos, vector_scale (norm, cameraSpeed));
                     break;
+                }
                 case "KeyS":
-                    cameraPos =  vector_add(cameraPos,camera.N);
+                    cameraPos =  vector_add(cameraPos, vector_scale(camera.lookAtDirection, cameraSpeed));
                     break;  
                 case "KeyR":
                     cameraPos = [0.0, 100.0, 100.0 ,1.0]; 
