@@ -9,6 +9,9 @@ precision mediump float;
 
 
 attribute vec3 vPosition;
+
+
+
 uniform mat4 uCamera;
 uniform mat4 uPerspectiveMatrix;
 uniform mat4 uModel;
@@ -20,7 +23,10 @@ varying vec4 fColor;
 
 void main() {
     gl_PointSize = 3.0;
-    fColor = vec4((1.0 + vPosition.xyz)/4.0, 1.0);
+    fColor = vec4((vPosition.xyz)/100.0, 1.0);
+   
+    
+
     vec4 newPos = vec4(vPosition, 1.0);
     gl_Position =   ( uPerspectiveMatrix * uCamera *uModel) * newPos  ; 
     
@@ -76,9 +82,9 @@ void main() {
                 <h2 id="Near-Slider-Value">Current: 1 </h2>
                 <input type="range" value="1" min=".1" max="30.0" class="slider" step=".5"id="near" />
             </h1>
-            <h1>Far Clipping Plane (300 - .1)
-                <h2 id="Far-Slider-Value">Current: -100 </h2>
-                <input type="range" value="far" min="-300" max=".1" value="-100" step="1" class="slider" id="far" />
+            <h1>Far Clipping Plane (.1 - 300)
+                <h2 id="Far-Slider-Value">Current: 100 </h2>
+                <input type="range" value="far" min=".1" max="300" value="100" step="1" class="slider" id="far" />
 
             </h1>
         </div>

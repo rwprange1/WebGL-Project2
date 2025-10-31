@@ -14,6 +14,8 @@ var teapotIndexSet = [];
 var dataBuffer;
 var indexBuffer;
 
+var axisBuffer;
+
 var camera; 
 
 
@@ -30,7 +32,7 @@ var cameraPos = [0.0, 100.0, 100.0 ,1.0];
 var lookAtPoint = [0.0, 0.0, 0.0, 1.0]; 
 var up = [cameraPos[0], cameraPos[1] + 1.0, cameraPos[2], 1.0];
 var near = 1;
-var far = -100;
+var far = 100;
 var left = -1;
 var right = 1;
 var bottom = -1;
@@ -61,7 +63,6 @@ window.onload = function init(){
 
     
     let modelData = getBounds();
-    console.log(modelData)
     let uModel = gl.getUniformLocation(program, "uModel");
     gl.uniformMatrix4fv(uModel, false, matToFloat32Array(changeChoordsNew(modelData, worldCoords)));
     
@@ -69,6 +70,7 @@ window.onload = function init(){
 
     buildBuffers();
     buildCamera();
+    buildAxis();
     initHTMLEventListeners();
     
    
@@ -76,6 +78,38 @@ window.onload = function init(){
 }
 
 
+function buildAxis(){
+
+    
+    
+   
+
+
+
+    let axisLength =100;
+
+    let points = [
+        0.0, 0.0, 0.0, 
+        axisLength, 0.0, 0.0, 
+
+        0.0, 0.0, 0.0,
+        0.0, axisLength, 0.0, 
+
+        0.0, 0.0, 0.0,
+        0.0, 0.0, axisLength, 
+
+        axisLength, 0.0, 0.0 , 
+        axisLength, 0.0, 0.0 
+    ];
+
+    axisBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, axisBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER,  new Float32Array(points), gl.STATIC_DRAW);
+
+    let vPosition = gl.getAttribLocation(program, "vPosition");
+    gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vPosition);
+}
 
 
 function buildBuffers(){
@@ -90,9 +124,7 @@ function buildBuffers(){
         gl.STATIC_DRAW
     )
 
-    let vPosition = gl.getAttribLocation(program, "vPosition");
-    gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(vPosition);
+
 
     
 
@@ -109,14 +141,29 @@ function buildBuffers(){
 
 
 
+
+
+
+
 /**
  * This is the render loop, we clear the canvas and display the content and call render again
  */
 function render() {
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    
+    gl.bindBuffer(gl.ARRAY_BUFFER,  dataBuffer);
+    let vPosition = gl.getAttribLocation(program, "vPosition");
+    gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vPosition);
     gl.drawElements(gl.TRIANGLES, teapotIndexSet.length, gl.UNSIGNED_SHORT, 0);
  
+    gl.bindBuffer(gl.ARRAY_BUFFER, axisBuffer);
+    gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vPosition);
+    gl.drawArrays(gl.LINES, 0 ,6);
+
+
     setTimeout(
 		function (){requestAnimFrame(render);}, 100
     );
@@ -125,18 +172,7 @@ function render() {
 
 function buildCamera(){
     camera = new Camera(cameraPos, lookAtPoint, up);
-
-    console.log(
-        "near", near, "far", far, "left", left, "right", right, "top", topCam, "bot", bottom
-    )
-
-    camera.perspective(left, right, bottom, topCam, near, far);
-    console.log("Persp",  camera.perspectiveMatrix);
-
-    let modelMatrix = gl.getUniformLocation(program, "uCamera");
-    let perspectiveMatrix = gl.getUniformLocation(program, "uPerspectiveMatrix");
-    gl.uniformMatrix4fv(modelMatrix, false, matToFloat32Array(transpose(camera.modelViewMatrix)));
-    gl.uniformMatrix4fv(perspectiveMatrix, false, matToFloat32Array(transpose(camera.perspectiveMatrix)));
+    updateCameraUniforms();
 
     let valueHolder = this.document.getElementById("cameraPos");
     valueHolder.innerHTML = ("Camera Position " + cameraPos);
@@ -207,49 +243,52 @@ function initHTMLEventListeners(){
     this.document.addEventListener("keydown", (event) =>{
             switch (event.code) {
                 case "KeyW":
-                    cameraPos[0] = cameraPos[0] + vector_scale(camera.lookAtDirection, CAMERA_SPEED)[0];
-                    cameraPos[2] = cameraPos[2] + vector_scale(camera.lookAtDirection, CAMERA_SPEED)[2];
-
-
-                    //console.log(cameraPos);
-                    //cameraPos = vector_add(cameraPos, vector_scale(camera.lookAtDirection, CAMERA_SPEED));
-                    //console.log(cameraPos);
+                    cameraPos[2] =cameraPos[2] + (-camera.N[2]); 
+                   
                     break;
                 case "KeyA":
                     
-                    cameraPos = vector_sub(cameraPos ,camera.U);
+                    cameraPos[0] = cameraPos[0] - 1;
+                    
+                 
                     
                     break;
                 case "KeyD":
-                    cameraPos = vector_add(cameraPos ,camera.U);
+                     
+                    cameraPos[0] = cameraPos[0] + 1;
                     break;
                 case "KeyS":
-                    cameraPos[0] = cameraPos[0] - vector_scale(camera.lookAtDirection, CAMERA_SPEED)[0];
-                    cameraPos[2] = cameraPos[2] - vector_scale(camera.lookAtDirection, CAMERA_SPEED)[2];
-
+                    cameraPos[2] =cameraPos[2] - (-camera.N[2]); 
                     break;  
                 case "KeyR":
                     cameraPos = [0.0, 100.0, 100.0 ,1.0]; 
                     lookAtPoint = [0.0, 0.0, 0.0, 1.0]; 
                     up = [cameraPos[0], cameraPos[1] + 1.0, cameraPos[2], 1.0];
                     near = 1;
-                    far = -100;
+                    far = 100;
                     left = -1;
                     right = 1;
                     bottom = -1;
                     topCam = 1;
+
+                    widthSliderOut.innerHTML = ("Current " + 2*right);
+                    heightSliderOut.innerHTML = ("Current " + 2*topCam);
+                    farSliderOut.innerHTML = ("Current " + far);
+                    nearSliderOut.innerHTML = ("Current " + near);
+
                     break;
                 case "Space":
-                    cameraPos = vector_add(cameraPos, [0.0 , 1.0 , 0.0 ,0.0]);
+                    cameraPos[1] += camera.V[1];
+                   
                     break;
                 case "ShiftLeft":
-                    cameraPos = vector_sub(cameraPos, camera.V);
+                    cameraPos[1] -= camera.V[1];
                     break; 
                 default:
                     return;       
 
             }
-            buildCamera();
+            buildCamera()
 
         });
 

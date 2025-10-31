@@ -218,7 +218,7 @@ function changeCoords(worldFrom, worldTo){
 
 function changeChoordsNew(matFrom, matTo){
 
-	console.log(matFrom, matTo);
+	
 
 	let xFrom = matFrom[0];
 	let yFrom = matFrom[1];
@@ -231,7 +231,7 @@ function changeChoordsNew(matFrom, matTo){
 
 	let transToOg = translate4x4(-xFrom[0], -yFrom[0], -zFrom[0]);
 
-	console.log("translate: ", transToOg);
+	
 
 	let scale = scale4x4(
         (xTo[1] - xTo[0]) / (xFrom[1] - xFrom[0]),
@@ -239,13 +239,11 @@ function changeChoordsNew(matFrom, matTo){
         (zTo[1] - zTo[0])/ (zFrom[1] - zFrom[0])
 	);
 
-	console.log("scale:", scale)
-
+	
 	let returnMat = translate4x4(xTo[0], yTo[0], zTo[0]);
 
 	let m1 = matMult(scale, transToOg);
 	m1 = matMult(returnMat, m1);
-	console.log(transpose(m1));
     return  transpose(m1); 
 
 
