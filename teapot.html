@@ -23,7 +23,7 @@ varying vec4 fColor;
 
 void main() {
     gl_PointSize = 3.0;
-    fColor = vec4((vPosition.xyz), 1.0);
+    fColor = vec4( vPosition.yxz, 1.0);
    
     
 
@@ -80,7 +80,7 @@ void main() {
 
             <h1>Near Clipping Plane (.1 - 200)
                 <h2 id="Near-Slider-Value">Current: 1 </h2>
-                <input type="range" value="1.5" min=".1" max="200.0" class="slider" step=".025"id="near" />
+                <input type="range" value="1" min="1" max="200.0" class="slider" step="1"id="near" />
             </h1>
             <h1>Far Clipping Plane (.1 - 300)
                 <h2 id="Far-Slider-Value">Current: 100 </h2>

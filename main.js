@@ -1,9 +1,10 @@
 
 
 /**
- * This will be the main file for a 3D-Cube and a camera
+ * This will be the main file for displaying a 3d teapot and the camera 
+ * movement and updates
  * @author Richard Prange
- * @version 10/6/2025
+ * @version 11/7/2025
  */
 
 var program;
@@ -12,9 +13,9 @@ var gl;
 
 var teapotIndexSet = [];
 var dataBuffer;
-var indexBuffer;
 
-var axisBuffer;
+
+
 
 var camera; 
 var theta = .05;
@@ -30,7 +31,7 @@ const CAMERA_SPEED = 1;
 
 var cameraPos = [0, 100., 100.0 ,1.0]; 
 var lookAtPoint = [0.0, 0.0, 0.0, 1.0]; 
-var up = [cameraPos[0], cameraPos[1] + 1.0, cameraPos[2], 1.0];
+var up = [0.0, 1.0, 0.0, 1.0];
 var near = 1;
 var far = 100;
 var left = -1;
@@ -59,20 +60,20 @@ window.onload = function init(){
     gl.enable(gl.DEPTH_TEST);
 
     gl.viewport(0,0,canvas.width, canvas.height);
-    gl.clearColor(.2,.3,.2,1.0);
+    gl.clearColor(1.,.5,.25,1.0);
 
     
     let modelData = getBounds();
     let uModel = gl.getUniformLocation(program, "uModel");
     gl.uniformMatrix4fv(uModel, false, matToFloat32Array(changeChoordsNew(modelData, worldCoords)));
     
-    // test identity mat
+    //test identity mat
     //gl.uniformMatrix4fv(uModel, false, matToFloat32Array(mat4()));
 
 
     buildBuffers();
     buildCamera();
-    buildAxis();
+
     initHTMLEventListeners();
     
    
@@ -80,41 +81,7 @@ window.onload = function init(){
 }
 
 
-function buildAxis(){
-    let axisLength =100;
 
-    let points = [
-        0.0, 0.0, 0.0, 
-        axisLength, 0.0, 0.0, 
-
-        0.0, 0.0, 0.0, 
-        -axisLength, 0.0, 0.0, 
-
-        0.0, 0.0, 0.0,
-        0.0, axisLength, 0.0, 
-
-
-        0.0, 0.0, 0.0,
-        0.0, 0.0, axisLength, 
-
-        0.0, 0.0, 0.0,
-        0.0, 0.0, -axisLength, 
-
-        axisLength, 0.0, 0.0 , 
-        axisLength, 0.0, 0.0,
-        
-        -axisLength, 0.0, 0.0 , 
-        -axisLength, 0.0, 0.0  
-    ];
-
-    axisBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, axisBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER,  new Float32Array(points), gl.STATIC_DRAW);
-
-    let vPosition = gl.getAttribLocation(program, "vPosition");
-    gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(vPosition);
-}
 
 
 function buildBuffers(){
@@ -167,16 +134,13 @@ function render() {
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     //rotateCamera()
-   gl.bindBuffer(gl.ARRAY_BUFFER,  dataBuffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER,  dataBuffer);
     let vPosition = gl.getAttribLocation(program, "vPosition");
-   gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
     gl.drawElements(gl.TRIANGLES, teapotIndexSet.length, gl.UNSIGNED_SHORT, 0);
  
-    gl.bindBuffer(gl.ARRAY_BUFFER, axisBuffer);
-    gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(vPosition);
-    gl.drawArrays(gl.LINES, 0 ,12);
+    
 
 
     setTimeout(
@@ -199,7 +163,7 @@ function updateCameraUniforms(){
     let modelMatrix = gl.getUniformLocation(program, "uCamera");
     let perspectiveMatrix = gl.getUniformLocation(program, "uPerspectiveMatrix");
     gl.uniformMatrix4fv(modelMatrix, false, matToFloat32Array(transpose(camera.modelViewMatrix)));
-    gl.uniformMatrix4fv(perspectiveMatrix, false, matToFloat32Array(transpose(camera.perspectiveMatrix)));
+    gl.uniformMatrix4fv(perspectiveMatrix, false , matToFloat32Array(camera.perspectiveMatrix));
 }
 
 
@@ -254,7 +218,7 @@ function initHTMLEventListeners(){
         updateCameraUniforms();
     }
 
-    let cameraSpeed = .05;
+    let cameraSpeed = 2;
 
     this.document.addEventListener("keydown", (event) =>{
             switch (event.code) {

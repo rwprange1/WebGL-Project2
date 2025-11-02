@@ -45,6 +45,7 @@ function Camera(location, lookAtPoint, up){
 Camera.prototype.lookAt = function(){
     let MoveCamToOg = translate4x4(-this.cameraPos[0], -this.cameraPos[1], -this.cameraPos[2]);
 
+
     let rotationMat = mat4();
 
     rotationMat[0][0] = this.U[0];
@@ -61,8 +62,9 @@ Camera.prototype.lookAt = function(){
     rotationMat[2][2] = this.lookAtDirection[2];
 
 
+    rotationMat = transpose(rotationMat);
     
-    rotationMat = transpose(rotationMat)
+    
     
     this.modelViewMatrix =matMult(rotationMat, MoveCamToOg); 
     
@@ -110,10 +112,8 @@ Camera.prototype.ortho = function(left, right, bottom, top, near, far){
 Camera.prototype.perspective = function(left, right, bottom, top, near, far){
     let mat = mat4();
 
-    console.log(near, far)
-
-
-    
+  
+  
     
     mat[0][0] = 2*near/(right-left);
     mat[0][2] = (right+left)/(right - left);
@@ -127,9 +127,11 @@ Camera.prototype.perspective = function(left, right, bottom, top, near, far){
     mat[3][2] = -1;
     mat[3][3] = 0;
 
-    
-    
-    this.perspectiveMatrix =mat;
+   
+
+
+
+    this.perspectiveMatrix = transpose(mat);
 }
 
 
