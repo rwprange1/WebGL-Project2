@@ -18,36 +18,37 @@ var dataBuffer;
 
 
 var camera; 
-var theta = .05;
 
-var worldCoords = [
-    [-80,80],
-    [-35,42],
-    [-50,50]
-];
 
-const CAMERA_SPEED = 1;
 
 
 var cameraPos = [0, 100., 100.0 ,1.0]; 
 var lookAtPoint = [0.0, 0.0, 0.0, 1.0]; 
 var up = [0.0, 1.0, 0.0, 1.0];
 var near = 1;
-var far = 100;
+var far = 200;
 var left = -1;
 var right = 1;
 var bottom = -1;
 var topCam = 1;
 
 
-
-
+var isHeld = false;
+var prevPoint;
+var click;
+var transMat;
+var camVelo = .005;
 
 
 window.onload = function init(){
     canvas = document.getElementById("gl-canvas");
-    gl = initWebGL(canvas);
+    
 
+
+
+
+    gl = initWebGL(canvas);
+    
     
     if (!gl) {
         this.alert("WebGL isnt available");
@@ -62,14 +63,10 @@ window.onload = function init(){
     gl.viewport(0,0,canvas.width, canvas.height);
     gl.clearColor(1.,.5,.25,1.0);
 
-    
-    let modelData = getBounds();
-    let uModel = gl.getUniformLocation(program, "uModel");
-    gl.uniformMatrix4fv(uModel, false, matToFloat32Array(changeChoordsNew(modelData, worldCoords)));
-    
-    //test identity mat
-    //gl.uniformMatrix4fv(uModel, false, matToFloat32Array(mat4()));
-
+    let transMatPointer = gl.getUniformLocation(program, "uTransMat");
+    transMat = mat4()
+    gl.uniformMatrix4fv(transMatPointer, false, matToFloat32Array(transpose(transMat)))
+  
 
     buildBuffers();
     buildCamera();
@@ -243,11 +240,11 @@ function initHTMLEventListeners(){
                     cameraPos =  vector_add(cameraPos, vector_scale(camera.lookAtDirection, cameraSpeed));
                     break;  
                 case "KeyR":
-                    cameraPos = [0.0, 100.0, 100.0 ,1.0]; 
+                    cameraPos = [0, 100., 100.0 ,1.0]; 
                     lookAtPoint = [0.0, 0.0, 0.0, 1.0]; 
                     up = [0.0, 1.0, 0.0, 1.0];
                     near = 1;
-                    far = 100;
+                    far = 200;
                     left = -1;
                     right = 1;
                     bottom = -1;
@@ -257,6 +254,9 @@ function initHTMLEventListeners(){
                     heightSliderOut.innerHTML = ("Current " + 2*topCam);
                     farSliderOut.innerHTML = ("Current " + far);
                     nearSliderOut.innerHTML = ("Current " + near);
+
+                    transMat = mat4()
+                    gl.uniformMatrix4fv(transMatPointer, false, matToFloat32Array(transpose(transMat)))
 
                     break;
                 case "Space":
@@ -274,7 +274,81 @@ function initHTMLEventListeners(){
 
         });
 
-    }
-    
-  
 
+
+    let transMatPointer = gl.getUniformLocation(program, "uTransMat");
+    canvas.addEventListener("mousemove", (event) => {
+        
+        if(!isHeld | click === null)
+            return 
+        
+
+        if (prevPoint === undefined | prevPoint === null){
+            
+            let localCoords = getMousePosition(event)
+            prevPoint = [localCoords[0], localCoords[1], 0.0 , 0.0];
+            return;
+        }
+
+        
+        
+        if(click === 0 ){
+            
+            let localCoords = getMousePosition(event)
+            let val = [localCoords[0], localCoords[1], 0.0 , 0.0];
+            transMat[0][3] += val[0] - prevPoint[0];
+            transMat[1][3] += val[1] - prevPoint[1];
+
+            
+
+
+            gl.uniformMatrix4fv(transMatPointer, false, matToFloat32Array(transpose(transMat)))
+            prevPoint = val;
+
+        }else if (click === 1){
+            let localCoords = getMousePosition(event)
+            let val = [localCoords[0], localCoords[1], 0.0 , 0.0];
+
+            if (val[1] - prevPoint[1] > 0){
+                cameraPos =  vector_add(cameraPos, vector_scale(camera.lookAtDirection, -2));
+            }else{
+                cameraPos =  vector_add(cameraPos, vector_scale(camera.lookAtDirection, 2));
+            }
+            buildCamera()
+
+            
+            
+            prevPoint = val;
+        }
+
+       
+        
+        
+
+    });
+
+    canvas.addEventListener("mousedown", (event) =>{
+        isHeld = true;
+        click = event.button;
+    })
+
+    this.document.addEventListener("mouseup", ()=>{
+        console.log("up")
+        isHeld = false;
+        click = null;
+        prevPoint = null;
+    })
+    
+
+    }
+
+
+
+
+    
+
+    
+    
+ 
+
+  

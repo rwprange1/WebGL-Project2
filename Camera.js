@@ -26,7 +26,7 @@ function Camera(location, lookAtPoint, up){
 
     // this is the camera forward direction (z-axis)
     this.lookAtDirection = normalize(this.lookAtDirection);
-    console.log(this.lookAtDirection)
+    
     this.up = normalize(this.up);
 
 
@@ -66,7 +66,10 @@ Camera.prototype.lookAt = function(){
     
     
     
+    
     this.modelViewMatrix =matMult(rotationMat, MoveCamToOg); 
+
+   
     
 }
 
