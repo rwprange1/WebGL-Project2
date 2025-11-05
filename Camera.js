@@ -112,12 +112,19 @@ Camera.prototype.ortho = function(left, right, bottom, top, near, far){
     this.projectionMatrix = mat;
 }
 
+/**
+ * This function builds the perspective matrix by building 
+ * a frustum given the following floating point values
+ * @param {*} left the left side of the frustums x-value
+ * @param {*} right  the right side of the frustums x -value
+ * @param {*} bottom  the bottom of the frustum y-value
+ * @param {*} top  the top of the frustum y-value
+ * @param {*} near the plane we are projecting onto (z-value)
+ * @param {*} far  the far clipping plane (z-value)
+ */
 Camera.prototype.perspective = function(left, right, bottom, top, near, far){
     let mat = mat4();
 
-  
-  
-    
     mat[0][0] = 2*near/(right-left);
     mat[0][2] = (right+left)/(right - left);
 
@@ -129,11 +136,6 @@ Camera.prototype.perspective = function(left, right, bottom, top, near, far){
 
     mat[3][2] = -1;
     mat[3][3] = 0;
-
-   
-
-
-
     this.perspectiveMatrix = transpose(mat);
 }
 

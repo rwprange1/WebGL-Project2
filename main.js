@@ -14,14 +14,7 @@ var gl;
 var teapotIndexSet = [];
 var dataBuffer;
 
-
-
-
 var camera; 
-
-
-
-
 var cameraPos = [0, 100., 100.0 ,1.0]; 
 var lookAtPoint = [0.0, 0.0, 0.0, 1.0]; 
 var up = [0.0, 1.0, 0.0, 1.0];
@@ -60,7 +53,7 @@ window.onload = function init(){
     let transMatPointer = gl.getUniformLocation(program, "uTransMat");
     transMat = mat4()
     gl.uniformMatrix4fv(transMatPointer, false, matToFloat32Array(transpose(transMat)))
-  
+    
 
     buildBuffers();
     buildCamera();
@@ -71,7 +64,9 @@ window.onload = function init(){
 
 
 
-
+/**
+ * This function loads in the teapot and the index buffer to the gpu
+ */
 function buildBuffers(){
     let data = matToFloat32Array(teapot_vertices);
     teapotIndexSet = teapot_indices;
@@ -84,11 +79,6 @@ function buildBuffers(){
         gl.STATIC_DRAW
     )
 
-
-
-    
-
-
     indexBuffer = gl.createBuffer(); 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
     
@@ -98,10 +88,6 @@ function buildBuffers(){
         gl.STATIC_DRAW
     );
 }
-
-
-
-
 
 
 
@@ -119,7 +105,7 @@ function render() {
     gl.drawElements(gl.TRIANGLES, teapotIndexSet.length, gl.UNSIGNED_SHORT, 0);
  
     
-
+    // sleep for 100 ms
     setTimeout(
 		function (){requestAnimFrame(render);}, 100
     );
@@ -160,10 +146,6 @@ function updateCameraUniforms(){
  */
 
 function initHTMLEventListeners(){
-
-   
-
-
     // get the html elements
     let heightSliderOut = document.getElementById("Height-Slider-Value");
     let widthSliderOut = document.getElementById("Width-Slider-Value");
@@ -318,22 +300,24 @@ function initHTMLEventListeners(){
     canvas.addEventListener("mousedown", (event) =>{
         isHeld = true;
         click = event.button;
-    })
+    });
 
     this.document.addEventListener("mouseup", ()=>{
         console.log("up")
         isHeld = false;
         click = null;
         prevPoint = null;
-    })
-    
-
-    }
+    });
+}
 
 
 
 /**
- * A simple helper function to reset the world and camera
+ * A simple helper function to reset the world and camera view and position
+ *  @param heightSliderOut: this is a reference to the HTML height slider
+ *  @param widthSliderOut: this is a reference to the HTML height slider
+ *  @param nearSliderOut: this is a reference to the HTML height slider
+ *  @param farSliderOut: this is a reference to the HTML height slider
  */
 function reset(heightSliderOut, widthSliderOut, nearSliderOut, farSliderOut){
     let transMatPointer = gl.getUniformLocation(program, "uTransMat");
@@ -354,7 +338,6 @@ function reset(heightSliderOut, widthSliderOut, nearSliderOut, farSliderOut){
 
     transMat = mat4()
     gl.uniformMatrix4fv(transMatPointer, false, matToFloat32Array(transpose(transMat)))
-
 }
     
     
