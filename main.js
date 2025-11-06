@@ -129,7 +129,7 @@ function buildCamera(){
  * It will then load our projection and view matrices to the shader
  */
 function updateCameraUniforms(){
-    console.log(left, right, bottom, topCam, near, far)
+    //console.log(left, right, bottom, topCam, near, far)
     camera.perspective(left, right, bottom, topCam, near, far);
     let modelMatrix = gl.getUniformLocation(program, "uCamera");
     let perspectiveMatrix = gl.getUniformLocation(program, "uPerspectiveMatrix");
@@ -170,7 +170,7 @@ function initHTMLEventListeners(){
      * symmetry and rebuild our perspective matrix, then update the html value
      */
     heightSliderIn.oninput = function (){
-        let value = this.value/2;
+        let value = parseFloat(this.value)/2;
         topCam = value;
         bottom = -1 * value;
         heightSliderOut.innerHTML = ("Current: " + value);
@@ -182,7 +182,7 @@ function initHTMLEventListeners(){
      * symmetry and rebuild our perspective matrix, then update the html value
      */
     widthSliderIn.oninput = function (){
-        let value = this.value/2;
+        let value = parseFloat(this.value)/2;
         right = value;
         left = -1 * value;
 
@@ -195,10 +195,11 @@ function initHTMLEventListeners(){
      * rebuild the perspective matrix
      */
     nearSliderIn.oninput = function (){
+        near = parseFloat(nearSliderIn.value);
        
-        near = nearSliderIn.value;
-        far = far;
-        console.log(near);
+    
+      
+        
         nearSliderOut.innerHTML = ("Current: " + near);
         updateCameraUniforms();
     }
@@ -208,8 +209,10 @@ function initHTMLEventListeners(){
      * rebuild the perspective matrix
      */
     farSliderIn.oninput = function (){
-       
-        far = farSliderIn.value;
+        far = parseFloat(farSliderIn.value);
+
+
+        
         farSliderOut.innerHTML = ("Current: " + far);
         updateCameraUniforms();
     }
@@ -303,7 +306,6 @@ function initHTMLEventListeners(){
     });
 
     this.document.addEventListener("mouseup", ()=>{
-        console.log("up")
         isHeld = false;
         click = null;
         prevPoint = null;
@@ -319,25 +321,51 @@ function initHTMLEventListeners(){
  *  @param nearSliderOut: this is a reference to the HTML height slider
  *  @param farSliderOut: this is a reference to the HTML height slider
  */
-function reset(heightSliderOut, widthSliderOut, nearSliderOut, farSliderOut){
-    let transMatPointer = gl.getUniformLocation(program, "uTransMat");
+function reset(){
+
+    console.log("reset")
+    let heightSliderOut = document.getElementById("Height-Slider-Value");
+    let widthSliderOut = document.getElementById("Width-Slider-Value");
+    let nearSliderOut = document.getElementById("Near-Slider-Value");
+    let farSliderOut = document.getElementById("Far-Slider-Value");
+    
+
+    let heightSliderIn =  document.getElementById("height-slider");
+    let widthSliderIn = document.getElementById("width-slider");
+   
+    let nearSliderIn = document.getElementById("near");
+    let farSliderIn = document.getElementById("far");
+
+
+
+
+    
     cameraPos = [0, 100., 100.0 ,1.0]; 
     lookAtPoint = [0.0, 0.0, 0.0, 1.0]; 
     up = [0.0, 1.0, 0.0, 1.0];
     near = 1.0;
-    far = 200;
-    left = -1;
-    right = 1;
-    bottom = -1;
-    topCam = 1;
+    far = 200.0;
+    left = -1.0;
+    right = 1.0;
+    bottom = -1.0;
+    topCam = 1.0;
+
+   
+    
+    heightSliderIn.value = 2*topCam;
+    widthSliderIn.value = 2*right;
+    nearSliderIn.value = near;
+    farSliderIn.value = far;
 
     widthSliderOut.innerHTML = ("Current: " + 2*right);
     heightSliderOut.innerHTML = ("Current: " + 2*topCam);
     farSliderOut.innerHTML = ("Current: " + far);
     nearSliderOut.innerHTML = ("Current: " + near);
 
-    transMat = mat4()
-    gl.uniformMatrix4fv(transMatPointer, false, matToFloat32Array(transpose(transMat)))
+    let transMatPointer = gl.getUniformLocation(program, "uTransMat");
+    transMat = mat4();
+    gl.uniformMatrix4fv(transMatPointer, false, matToFloat32Array(transpose(transMat)));
+    buildCamera();
 }
     
     

@@ -7,16 +7,13 @@
 function Camera(location, lookAtPoint, up){
     this.modelViewMatrix = mat4();
     this.projectionMatrix = mat4();
-    this.perspectiveMatrix = mat4();
     this.cameraPos = location;
-    this.lookAtPoint = lookAtPoint;
-   
 
     this.lookAtDirection = [];
     this.up = [];
    
-    for (let i = 0; i < this.lookAtPoint.length; i++){
-        this.lookAtDirection[i] =  this.cameraPos[i] - this.lookAtPoint[i];
+    for (let i = 0; i < lookAtPoint.length; i++){
+        this.lookAtDirection[i] =  this.cameraPos[i] - lookAtPoint[i];
         this.up[i] = up[i] - this.cameraPos[i];
     }
     
@@ -124,6 +121,8 @@ Camera.prototype.ortho = function(left, right, bottom, top, near, far){
  */
 Camera.prototype.perspective = function(left, right, bottom, top, near, far){
     let mat = mat4();
+
+    
 
     mat[0][0] = 2*near/(right-left);
     mat[0][2] = (right+left)/(right - left);

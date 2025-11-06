@@ -16,7 +16,7 @@ Richard Prange
     - **D**: Is similar to A but rotates to the right.
 4. To reset the model their is a button or use the **R** key.     
 5. The sliders will allow the user to change the definition of the viewing frustum.
-The frustum will remain symmetric. There is a bug with the near plane slider. Moving the near plane slider before the far plane slider will cause the model to disappear. 
+The frustum will remain symmetric. 
 
 # How to run
 1. Make sure you are in the project root directory then run **.\teapot.html**
